@@ -28,7 +28,8 @@ def calculate_invoice(monthly_invoice: dict, team_roles: dict) -> int:
 
     for person in get_team_from(monthly_invoice):
         role = team_roles[person['role']]
-        result += f" {person['role']}: {locale.currency(amount_for_person(person['days'], experience_for(role)), grouping=True)} ({person['days']} days)\n"
+        person_cost = amount_for_person(person['days'], experience_for(role))
+        result += f" {person['role']}: {locale.currency(person_cost, grouping=True)} ({person['days']} days)\n"
 
     invoice_amount = total_amount(get_team_from(monthly_invoice), team_roles)
     volume_discount = total_volume_discount(get_team_from(monthly_invoice), team_roles)

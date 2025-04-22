@@ -1,0 +1,27 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+testbin/*
+
+# Ignore Gradle build output directory
+build
+
+#mac files
+.DS_Store
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+
+__pycache__/
+*.egg-info
+samples/spark/bin
+
+#Python
+.venv/
+venv/
+.python_version
+.pytest_cache/
+.eggs

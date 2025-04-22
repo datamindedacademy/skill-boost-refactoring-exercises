@@ -5,3 +5,47 @@ def test_statement():
     result = statement({"customer":"test", "team": []}, {})
 
     assert "0.00" in result
+
+def test_junior_engineer_1_month_amount():
+    result = statement({"customer":"test", "team": [{'role': 'engineer', 'days': 20}]}, {'engineer': {'experience': 'junior'}})
+
+    assert "10,000.00" in result
+
+def test_engineer_unexisting_experience():
+    with pytest.raises(ValueError):
+        statement({"customer":"test", "team": [{'role': 'engineer', 'days': 20}]}, {'engineer': {'experience': 'medior'}})
+
+def test_two_junior_engineers_1_month_amount():
+    result = statement({"customer":"test", "team": [{'role': 'engineer', 'days': 40}]}, {'engineer': {'experience': 'junior'}})
+
+    assert "18,000.00" in result
+
+def test_senior_engineer_1_month_amount():
+    result = statement({"customer":"test", "team": [{'role': 'engineer', 'days': 20}]}, {'engineer': {'experience': 'senior'}})
+
+    assert "20,000.00" in result
+
+def test_two_senior_engineers_1_month_amount():
+    result = statement({"customer":"test", "team": [{'role': 'engineer', 'days': 40}]}, {'engineer': {'experience': 'senior'}})
+
+    assert "38,000.00" in result
+
+def test_junior_engineer_1_month_extra_discount_500():
+    result = statement({"customer":"test", "team": [{'role': 'engineer', 'days': 20}]}, {'engineer': {'experience': 'junior'}})
+
+    assert "volume discount: $500.00" in result
+
+def test_one_senior_engineer_1_month_extra_discount_0():
+    result = statement({"customer":"test", "team": [{'role': 'engineer', 'days': 20}]}, {'engineer': {'experience': 'senior'}})
+
+    assert "volume discount: $0.00" in result
+
+def test_two_junior_engineers_1_month_discount_500():
+    result = statement({"customer":"test", "team": [{'role': 'engineer', 'days': 40}]}, {'engineer': {'experience': 'junior'}})
+
+    assert "volume discount: $1,500.00" in result
+
+def test_two_senior_engineer_1_month_extra_discount_500():
+    result = statement({"customer":"test", "team": [{'role': 'engineer', 'days': 40}]}, {'engineer': {'experience': 'senior'}})
+
+    assert "volume discount: $500.00" in result

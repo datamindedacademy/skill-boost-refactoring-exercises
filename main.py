@@ -20,7 +20,7 @@ def statement(invoice, roles):
         elif role['experience'] == "senior":
             this_amount = 1000 * pers['days']
             if pers['days'] > 20:
-                this_amount -= 0.1 * (pers['audience'] - 20) * 1000
+                this_amount -= 0.1 * (pers['days'] - 20) * 1000
         else:
             raise ValueError(f"unknown experience level: {role['experience']}")
 

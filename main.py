@@ -25,7 +25,7 @@ def statement(invoice, roles):
             raise ValueError(f"unknown experience level: {role['experience']}")
 
         # add volume discount
-        volume_discount += max(pers['days']/ 40, 0) * 500
+        volume_discount += max(math.floor(pers['days']/ 40), 0) * 500
 
         # extra credit for every junior engineer
         if role['experience'] == "junior":

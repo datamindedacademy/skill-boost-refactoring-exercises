@@ -1,7 +1,5 @@
 import locale
-import math
-from enum import Enum
-from typing import Any, List
+from typing import List
 
 from common import RoleType, Experience
 from person import PersonCalculator, TechnicalPersonCalculator, BusinessPersonCalculator
@@ -42,8 +40,29 @@ def calculate_invoice(monthly_invoice: dict, team_roles: dict) -> int:
     invoice_amount = total_amount(get_team_from(monthly_invoice), team_roles)
     volume_discount = total_volume_discount(get_team_from(monthly_invoice), team_roles)
     result += f"Amount owed is {locale.currency(invoice_amount, grouping=True)}\n"
-    result += f"You receive a volume discount: {locale.currency(volume_discount, grouping=True)} \n"
+    result += f"On top you receive a volume discount of {locale.currency(volume_discount, grouping=True)} \n"
 
+    return result
+
+
+def calculate_html_invoice(monthly_invoice: dict, team_roles: dict) -> str:
+    result = f"<h1>Statement for {monthly_invoice['customer']}</h1>\n"
+
+    result += "<table>\n"
+    result += "<tr><th>Role</th><th>Days</th><th>Cost</th></tr>\n"
+    for person in get_team_from(monthly_invoice):
+        role = team_roles[person["role"]]
+        person_cost = amount_for_person(
+            person["days"], experience_for(role), type_of_role(role)
+        )
+        result += f"<tr><td>{person['role']}</td><td>{person['days']}</td><td>{locale.currency(person_cost, grouping=True)}</td></tr>\n"
+
+    result += "</table>\n"
+
+    invoice_amount = total_amount(get_team_from(monthly_invoice), team_roles)
+    volume_discount = total_volume_discount(get_team_from(monthly_invoice), team_roles)
+    result += f"<p>Amount owed is <em>{locale.currency(invoice_amount, grouping=True)}</em></p>\n"
+    result += f"<p>On top you receive a volume discount of <em>{locale.currency(volume_discount, grouping=True)}</em> </p>\n"
     return result
 
 
@@ -95,7 +114,7 @@ def main():
         "Team lead": {"type": "technical", "experience": "senior"},
         "Customer success manager": {"type": "business", "experience": "senior"},
     }
-    result = calculate_invoice(invoice, roles)
+    result = calculate_html_invoice(invoice, roles)
     print(result)
 
 

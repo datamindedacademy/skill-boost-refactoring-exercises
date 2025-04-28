@@ -3,32 +3,40 @@ import math
 from enum import Enum
 from typing import Any, List
 
-locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+from common import RoleType, Experience
+from person import PersonCalculator, TechnicalPersonCalculator, BusinessPersonCalculator
 
-class Experience(Enum):
-    JUNIOR = "junior"
-    SENIOR = "senior"
+locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
+
 
 def total_amount(team: List, team_roles: dict):
     result = 0
     for person in team:
-        role = team_roles[person['role']]
-        result += amount_for_person(person['days'], experience_for(role))
+        role = team_roles[person["role"]]
+        result += amount_for_person(
+            person["days"], experience_for(role), type_of_role(role)
+        )
     return result
+
 
 def total_volume_discount(team: List, team_roles: dict):
     result = 0
     for person in team:
-        role = team_roles[person['role']]
-        result += volume_discounts_for(person['days'], experience_for(role))
+        role = team_roles[person["role"]]
+        result += volume_discounts_for(
+            person["days"], experience_for(role), type_of_role(role)
+        )
     return result
+
 
 def calculate_invoice(monthly_invoice: dict, team_roles: dict) -> int:
     result = f"Statement for {monthly_invoice['customer']}\n"
 
     for person in get_team_from(monthly_invoice):
-        role = team_roles[person['role']]
-        person_cost = amount_for_person(person['days'], experience_for(role))
+        role = team_roles[person["role"]]
+        person_cost = amount_for_person(
+            person["days"], experience_for(role), type_of_role(role)
+        )
         result += f" {person['role']}: {locale.currency(person_cost, grouping=True)} ({person['days']} days)\n"
 
     invoice_amount = total_amount(get_team_from(monthly_invoice), team_roles)
@@ -38,45 +46,49 @@ def calculate_invoice(monthly_invoice: dict, team_roles: dict) -> int:
 
     return result
 
-def volume_discounts_for(days: int, experience: str) -> int:
+
+def volume_discounts_for(days: int, experience: str, role_type: str) -> int:
     result = 0
-    result += max(math.floor(days / 40), 0) * 500
-    if experience == Experience.JUNIOR.value:
-        result += math.floor(days / 20) * 500
+    calculator = calculator_factory(role_type)
+    result += calculator.calculate_volume_discount(days, experience)
     return result
 
-def amount_for_person(days: int, experience: str) -> int:
+
+def amount_for_person(days: int, experience: str, role_type: str) -> int:
     result = 0
-    if experience == Experience.JUNIOR.value:
-        result = 500 * days
-        if days > 20:
-            result -= 0.2 * (days - 20) * 500
-    elif experience == Experience.SENIOR.value:
-        result = 1000 * days
-        if days > 20:
-            result -= 0.1 * (days - 20) * 1000
-    else:
-        raise ValueError(f"unknown experience level: {experience}")
+    calculator = calculator_factory(role_type)
+    result += calculator.calculate_price(days, experience)
     return result
+
+
+def calculator_factory(role_type: str) -> PersonCalculator:
+    if role_type == RoleType.TECHNICAL.value:
+        return TechnicalPersonCalculator()
+    elif role_type == RoleType.BUSINESS.value:
+        return BusinessPersonCalculator()
+    else:
+        raise ValueError(f"unknown role type: {role_type}")
+
 
 def get_team_from(monthly_invoice):
-    return monthly_invoice['team']
+    return monthly_invoice["team"]
+
 
 def experience_for(role):
-    return role['experience']
+    return role["experience"]
+
+
+def type_of_role(role):
+    return role["type"]
+
 
 def main():
     invoice = {
         "customer": "Gambit finance",
         "team": [
-        {
-            "role": "Team lead",
-            "days": 20
-        },
-        {
-            "role": "Associate engineer",
-            "days": 40
-        }]
+            {"role": "Team lead", "days": 20},
+            {"role": "Associate engineer", "days": 40},
+        ],
     }
     roles = {
         "Associate engineer": {"type": "technical", "experience": "junior"},
@@ -85,6 +97,7 @@ def main():
     }
     result = calculate_invoice(invoice, roles)
     print(result)
+
 
 if __name__ == "__main__":
     main()

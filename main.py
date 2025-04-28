@@ -1,44 +1,56 @@
-import locale
 import math
+import locale
 
-# Set up US locale for currency formatting
 locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+
 
 def statement(invoice, roles):
     total_amount = 0
     volume_discount = 0
     result = f"Statement for {invoice['customer']}\n"
 
-    for pers in invoice['team']:
-        role = roles[pers['role']]
-        this_amount = 0
+    for person in invoice['team']:
+        role_info = roles[person['role']]
+        experience = role_info['experience']
+        days = person['days']
 
-        if role['experience'] == "junior":
-            this_amount = 500 * pers['days']
-            if pers['days'] > 20:
-                this_amount -= 0.2 * (pers['days'] - 20) * 500
-        elif role['experience'] == "senior":
-            this_amount = 1000 * pers['days']
-            if pers['days'] > 20:
-                this_amount -= 0.1 * (pers['days'] - 20) * 1000
-        else:
-            raise ValueError(f"unknown experience level: {role['experience']}")
+        amount = calculate_amount(experience, days)
+        discount = calculate_volume_discount(experience, days)
 
-        # add volume discount
-        volume_discount += max(math.floor(pers['days']/ 40), 0) * 500
+        volume_discount += discount
+        total_amount += amount
 
-        # extra credit for every junior engineer
-        if role['experience'] == "junior":
-            volume_discount += math.floor(pers['days'] / 20) * 500
-
-        # print line for this order
-        result += f" {pers['role']}: {locale.currency(this_amount, grouping=True)} ({pers['days']} days)\n"
-        total_amount += this_amount
+        result += format_line_item(person['role'], amount, days)
 
     result += f"Amount owed is {locale.currency(total_amount, grouping=True)}\n"
     result += f"You receive a volume discount: {locale.currency(volume_discount, grouping=True)} \n"
 
     return result
+
+def calculate_amount(experience, days):
+    if experience == "junior":
+        rate = 500
+        amount = rate * days
+        if days > 20:
+            amount -= 0.2 * (days - 20) * rate
+    elif experience == "senior":
+        rate = 1000
+        amount = rate * days
+        if days > 20:
+            amount -= 0.1 * (days - 20) * rate
+    else:
+        raise ValueError(f"Unknown experience level: {experience}")
+    return amount
+
+def calculate_volume_discount(experience, days):
+    discount = max(math.floor(days / 40), 0) * 500
+    if experience == "junior":
+        discount += math.floor(days / 20) * 500
+    return discount
+
+def format_line_item(role, amount, days):
+    return f" {role}: {locale.currency(amount, grouping=True)} ({days} days)\n"
+
 
 def main():
     invoice = {

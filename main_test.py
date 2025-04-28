@@ -1,16 +1,18 @@
 import pytest
-from main import Experience, RoleType, calculate_invoice
+
+from common import Experience, RoleType
+from main import calculate_plain_text_invoice
 
 
 def test_statement():
-    result = calculate_invoice({"customer": "test", "team": []}, {})
+    result = calculate_plain_text_invoice({"customer": "test", "team": []}, {})
 
     assert "0.00" in result
 
 
 def test_junior_engineer_1_month_amount():
     team_roles = create_team_role_engineer(Experience.JUNIOR)
-    result = calculate_invoice(
+    result = calculate_plain_text_invoice(
         {"customer": "test", "team": create_team_engineer(20)}, team_roles
     )
 
@@ -19,7 +21,7 @@ def test_junior_engineer_1_month_amount():
 
 def test_engineer_unexisting_experience():
     with pytest.raises(ValueError):
-        calculate_invoice(
+        calculate_plain_text_invoice(
             {"customer": "test", "team": create_team_engineer(20)},
             {"engineer": {"experience": "medior", "type": RoleType.TECHNICAL.value}},
         )
@@ -27,7 +29,7 @@ def test_engineer_unexisting_experience():
 
 def test_two_junior_engineers_1_month_amount():
     team_roles = create_team_role_engineer(Experience.JUNIOR)
-    result = calculate_invoice(
+    result = calculate_plain_text_invoice(
         {"customer": "test", "team": create_team_engineer(40)}, team_roles
     )
 
@@ -36,7 +38,7 @@ def test_two_junior_engineers_1_month_amount():
 
 def test_senior_engineer_1_month_amount():
     team_roles = create_team_role_engineer(Experience.SENIOR)
-    result = calculate_invoice(
+    result = calculate_plain_text_invoice(
         {"customer": "test", "team": create_team_engineer(20)}, team_roles
     )
 
@@ -45,7 +47,7 @@ def test_senior_engineer_1_month_amount():
 
 def test_two_senior_engineers_1_month_amount():
     team_roles = create_team_role_engineer(Experience.SENIOR)
-    result = calculate_invoice(
+    result = calculate_plain_text_invoice(
         {"customer": "test", "team": create_team_engineer(40)}, team_roles
     )
 
@@ -54,61 +56,61 @@ def test_two_senior_engineers_1_month_amount():
 
 def test_junior_engineer_1_month_extra_discount_500():
     team_roles = create_team_role_engineer(Experience.JUNIOR)
-    result = calculate_invoice(
+    result = calculate_plain_text_invoice(
         {"customer": "test", "team": create_team_engineer(20)}, team_roles
     )
 
-    assert "volume discount: $500.00" in result
+    assert "On top you receive a volume discount of $500.00" in result
 
 
 def test_one_senior_engineer_1_month_extra_discount_0():
     team_roles = create_team_role_engineer(Experience.SENIOR)
-    result = calculate_invoice(
+    result = calculate_plain_text_invoice(
         {"customer": "test", "team": create_team_engineer(20)}, team_roles
     )
 
-    assert "volume discount: $0.00" in result
+    assert "On top you receive a volume discount of $0.00" in result
 
 
 def test_two_junior_engineers_1_month_discount_500():
     team_roles = create_team_role_engineer(Experience.JUNIOR)
-    result = calculate_invoice(
+    result = calculate_plain_text_invoice(
         {"customer": "test", "team": create_team_engineer(40)}, team_roles
     )
 
-    assert "volume discount: $1,500.00" in result
+    assert "On top you receive a volume discount of $1,500.00" in result
 
 
 def test_two_senior_engineer_1_month_extra_discount_500():
     team_roles = create_team_role_engineer(Experience.SENIOR)
-    result = calculate_invoice(
+    result = calculate_plain_text_invoice(
         {"customer": "test", "team": create_team_engineer(40)}, team_roles
     )
 
-    assert "volume discount: $500.00" in result
+    assert "On top you receive a volume discount of $500.00" in result
 
 
 def test_csm_1_month_no_discounts():
     team_roles = create_team_role_csm()
-    result = calculate_invoice(
+    result = calculate_plain_text_invoice(
         {"customer": "test", "team": create_team_csm(20)}, team_roles
     )
 
-    assert "volume discount: $0.00" in result
+    assert "On top you receive a volume discount of $0.00" in result
 
 
 def test_two_csm_1_month_no_discounts():
     team_roles = create_team_role_csm()
-    result = calculate_invoice(
+    result = calculate_plain_text_invoice(
         {"customer": "test", "team": create_team_csm(40)}, team_roles
     )
 
-    assert "volume discount: $0.00" in result
+    assert "On top you receive a volume discount of $0.00" in result
 
 
 def test_csm_1_day_amount():
     team_roles = create_team_role_csm()
-    result = calculate_invoice(
+    result = calculate_plain_text_invoice(
         {"customer": "test", "team": create_team_csm(1)}, team_roles
     )
 

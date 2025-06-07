@@ -71,17 +71,18 @@ def test_order_preserved():
     assert [item.name for item in items_v1] == original_names
     assert [item.name for item in items_v2] == original_names
 
+
 @pytest.mark.parametrize(
     "sell_in, quality, expected_sell_in, expected_quality",
     [
-        (5, 10, 4, 8),     # Degrade by 2 before sell date
-        (0, 10, -1, 6),    # Degrade by 4 on sell date
-        (-1, 10, -2, 6),   # Degrade by 4 after sell date
-        (3, 1, 2, 0),      # Cannot go below 0
-        (-1, 1, -2, 0),    # Cannot go below 0 post-expiry
-        (2, 0, 1, 0),      # Already 0
-        (2, 49, 1, 47),    # Just under max
-        (2, 50, 1, 48),    # At max value
+        (5, 10, 4, 8),  # Degrade by 2 before sell date
+        (0, 10, -1, 6),  # Degrade by 4 on sell date
+        (-1, 10, -2, 6),  # Degrade by 4 after sell date
+        (3, 1, 2, 0),  # Cannot go below 0
+        (-1, 1, -2, 0),  # Cannot go below 0 post-expiry
+        (2, 0, 1, 0),  # Already 0
+        (2, 49, 1, 47),  # Just under max
+        (2, 50, 1, 48),  # At max value
     ],
 )
 def test_conjured_item_update_quality_v2(

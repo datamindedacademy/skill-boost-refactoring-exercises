@@ -25,3 +25,4 @@ venv/
 .python_version
 .pytest_cache/
 .eggs
+**/**.duckdb
